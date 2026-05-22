@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Choose Pos Voting System</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app" style="display: none;">
+        <div class="vote-container">
+
+            
+            <div class="header">
+                <div class="server-brand">
+                    <img src="https://i.ibb.co/YFBg2zvK/cdb534827b378ece0e18966e5a26ac19.webp" alt="SkyPOS Logo" class="server-logo">
+                    <div class="server-name-block">
+                        <span class="server-name">SkyPOS</span>
+                        <span class="server-tag">PVP</span>
+                    </div>
+                </div>
+                <div class="timer-box">
+                    FIN DU VOTE DANS&nbsp;&nbsp;<span id="time-left">15</span>s
+                </div>
+            </div>
+
+            
+            <div class="locations-grid">
+
+                <div class="location-card" data-choice="camp">
+                    <img src="https://storage.canalblog.com/11/34/1188729/91839186.jpg" alt="Camp Nudiste">
+                    <div class="card-overlay">
+                        <div class="title">Camp Nudiste</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-camp">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="merry">
+                    <img src="https://lh5.googleusercontent.com/sT3SvlDdlVKuJyKcTimL3oaqWpADNoJvwPAiK2WXvuYsJB7nAOJSAMtsoGZ37fLsO1GEAK5xz4oZ8EpinH5KVN6U5JTN6bkaR_8l3I8auX-0TTYBXBfnWIaKLEcYLZU4e_FHsReZ10S9dOMKYEvXzz8" alt="MerryWeather">
+                    <div class="card-overlay">
+                        <div class="title">MerryWeather</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-merry">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="avion">
+                    <img src="https://prod.cloud.rockstargames.com/ugc/gta5mission/6trL4VqCoE6MHSdS_OSDgg/1_0.jpg" alt="Casse Avion">
+                    <div class="card-overlay">
+                        <div class="title">Casse Avion</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-avion">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="roxwood">
+                    <img src="https://dunb17ur4ymx4.cloudfront.net/wysiwyg/952306/762c59b840db238762f3fbfe5ba354a63dee7d64.webp" alt="Parc Aquatique">
+                    <div class="card-overlay">
+                        <div class="title">Parc Aquatique</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-roxwood">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="biker">
+                    <img src="https://i.ibb.co/q3rZQf4b/image3.png" alt="Camp Biker">
+                    <div class="card-overlay">
+                        <div class="title">Camp Biker</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-biker">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="naval">
+                    <img src="https://i.ibb.co/LzFtSch3/image4.png" alt="Chantier Naval">
+                    <div class="card-overlay">
+                        <div class="title">Chantier Naval</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-naval">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="manoir">
+                    <img src="https://i.ibb.co/Psw1wdm0/image5.png" alt="Manoir">
+                    <div class="card-overlay">
+                        <div class="title">Manoir</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-manoir">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="casse">
+                    <img src="https://rockstaractu.com/wp-content/uploads/2023/11/GTA-Online-Activites-Business-Trafic-de-vehicule-Reds-Auto-Parts-avec-Yusuf-Amir-Image-1-1280p-x-720p-Qualite-50-Picture-by-Rockstar-Games-1024x576.jpg" alt="Casse Sud">
+                    <div class="card-overlay">
+                        <div class="title">Casse Sud</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-casse">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="usine">
+                    <img src="https://pbs.twimg.com/media/GWLPUAkWcAAiEKH.jpg" alt="Usine Roxwood">
+                    <div class="card-overlay">
+                        <div class="title">Usine Roxwood</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-usine">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="sous">
+                    <img src="https://i.ibb.co/6cQRH85J/sous.png" alt="Sous Terrain">
+                    <div class="card-overlay">
+                        <div class="title">Sous Terrain LS</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-sous">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="scarface">
+                    <img src="https://i.ibb.co/sX1T25h/scarface.png" alt="Villa Scarface">
+                    <div class="card-overlay">
+                        <div class="title">Villa Scarface</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-scarface">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="palmer">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gtawiki/images/9/99/PalmerTaylorPowerStation-GTAV.png" alt="Palmer Station">
+                    <div class="card-overlay">
+                        <div class="title">Palmer Station</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-palmer">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="labs">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gtawiki/images/5/52/HumaneLabsandResearch-GTAV.png" alt="Human Labs">
+                    <div class="card-overlay">
+                        <div class="title">Human Labs</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-labs">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="kortz">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gtawiki/images/4/4e/KortzCenter-GTAV-South.png" alt="Kortz Center">
+                    <div class="card-overlay">
+                        <div class="title">Kortz Center</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-kortz">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="neil">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gtawiki/images/5/5e/O%27NeilHouse-GTAV.png" alt="Maison O'Neil">
+                    <div class="card-overlay">
+                        <div class="title">Maison O'Neil</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-neil">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="yacht">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gta/images/3/3f/Yacht_Aquarius_-_GTA_Online.png" alt="Yacht">
+                    <div class="card-overlay">
+                        <div class="title">Yacht</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-yacht">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="scirie">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/failyv/images/b/b2/PaletoForestSawmill.png" alt="Scierie NORD">
+                    <div class="card-overlay">
+                        <div class="title">Scierie NORD</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-scirie">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+                <div class="location-card" data-choice="bell">
+                    <img src="https://images.weserv.nl/?url=https://static.wikia.nocookie.net/gtawiki/images/f/f4/CluckingBellFarms-GTAOe-Exterior.png" alt="Cluckin' Bell">
+                    <div class="card-overlay">
+                        <div class="title">Cluckin' Bell</div>
+                        <div class="vote-count">Votes&nbsp;: <span id="votes-bell">0</span></div>
+                    </div>
+                    <div class="selected-indicator">Voté ✓</div>
+                </div>
+
+            </div>
+
+            
+            <div id="vote-message" class="vote-message">
+                Merci pour ton choix.&nbsp;<span>En attente des autres joueurs…</span>
+            </div>
+
+            
+            <div class="action-bar">
+                <button id="refuse-button" class="refuse-btn">Refuser le POSPOS</button>
+                <span class="refuse-subtext">Ceci est pas pour etre tp</span>
+            </div>
+
+        </div>
+    </div>
+    <div id="cooldown-hud" class="cooldown-hud" style="display: none;">
+        <div class="cooldown-icon-container">
+            <svg viewBox="0 0 24 24" class="cooldown-svg-icon">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="white" stroke-width="2.5"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="white" stroke-width="2.5"/>
+            </svg>
+        </div>
+        <div class="cooldown-text-block">
+            <div class="cooldown-title">TIR BLOQUÉ</div>
+            <div class="cooldown-time"><span id="cooldown-seconds">60</span>s</div>
+        </div>
+    </div>
+    <div id="team-hud" style="display:none;">
+        <div class="hud-vs-container">
+
+            <div class="hud-team" id="hud-team-int">
+                <div class="hud-team-header">
+                    <span class="hud-team-icon">&#127968;</span>
+                    <span class="hud-team-label">Int&eacute;rieur</span>
+                </div>
+                <div class="hud-team-tenue" id="hud-tenue-int">&mdash;</div>
+                <div class="hud-team-players" id="hud-players-int"></div>
+                <div class="hud-team-count">
+                    <span id="hud-alive-int">0</span> vivant(s)&nbsp;&middot;&nbsp;<span id="hud-dead-int">0</span> mort(s)
+                </div>
+            </div>
+
+            <div class="hud-vs-center">
+                <div class="hud-vs-map" id="hud-map-name">&mdash;</div>
+                <div class="hud-vs-badge">VS</div>
+                <div class="hud-vs-total" id="hud-total-players">0 joueurs</div>
+            </div>
+
+            <div class="hud-team" id="hud-team-ext">
+                <div class="hud-team-header">
+                    <span class="hud-team-icon">&#127807;</span>
+                    <span class="hud-team-label">Ext&eacute;rieur</span>
+                </div>
+                <div class="hud-team-tenue" id="hud-tenue-ext">&mdash;</div>
+                <div class="hud-team-players" id="hud-players-ext"></div>
+                <div class="hud-team-count">
+                    <span id="hud-alive-ext">0</span> vivant(s)&nbsp;&middot;&nbsp;<span id="hud-dead-ext">0</span> mort(s)
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
