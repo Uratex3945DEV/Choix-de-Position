@@ -231,6 +231,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (item.map && hudMapName) hudMapName.textContent = item.map;
         }
 
+        if (item.action === "hudSetMap") {
+            if (item.map && hudMapName) hudMapName.textContent = item.map;
+        }
+
         if (item.action === "hideHud") {
             if (teamHud) teamHud.style.display = 'none';
         }

@@ -123,10 +123,11 @@ local CooldownTime  = 150
 local TenueInterieur = nil
 local TenueExterieur = nil
 
-local CurrentMap      = nil   -- clé de la map ex: "camp"
-local TeamAssignments = {}    -- src → "interieur" | "exterieur"
+local CurrentMap      = nil
+local TeamAssignments = {}
 
-local MortsEquipe = { interieur = {}, exterieur = {} }
+local MortsEquipe     = { interieur = {}, exterieur = {} }
+local AutoInverseDone = false   -- bloque un 2e déclenchement dans la même manche
 
 
 -- ──────────────────────────────────────────────────────────────
@@ -348,8 +349,13 @@ RegisterCommand('chooseposinverse', function(source)
         TeamAssignments[src] = (slot == "interieur") and "exterieur" or "interieur"
     end
 
-    MortsEquipe = { interieur = {}, exterieur = {} }
-    TriggerClientEvent('choosepos:hudResetDead', -1)
+    MortsEquipe     = { interieur = {}, exterieur = {} }
+    AutoInverseDone = false   -- permet un futur auto-inverse après l'inversion manuelle
+    for pid, _ in pairs(TeamAssignments) do
+        if not RefusedPlayers[pid] then
+            TriggerClientEvent('choosepos:hudResetDead', pid)
+        end
+    end
 
     local intList = ""
     local extList = ""
@@ -416,6 +422,10 @@ AddEventHandler('choosepos:confirmTenues', function(labelInt, labelExt)
     CurrentVotes    = {}
     CurrentMap      = nil
     TeamAssignments = {}
+    AutoInverseDone = false
+
+    -- Cache le HUD de la manche précédente pour tout le monde
+    TriggerClientEvent('choosepos:hudHide', -1)
 
     for k, _ in pairs(Labels) do
         CurrentVotes[k] = 0
@@ -446,7 +456,23 @@ AddEventHandler('choosepos:confirmTenues', function(labelInt, labelExt)
 
         VoteActive = false
         AssignTeams()
-        BroadcastHudUpdate()
+
+        -- Construit le payload HUD
+        local hudData = { interieur = {}, exterieur = {} }
+        for pid, s in pairs(TeamAssignments) do
+            local px   = ESX.GetPlayerFromId(pid)
+            local name = px and px.getName() or ("ID " .. pid)
+            table.insert(hudData[s], { id = pid, name = name })
+        end
+        -- Affiche le HUD uniquement aux joueurs participants (non refusés)
+        for pid, s in pairs(TeamAssignments) do
+            if not RefusedPlayers[pid] then
+                TriggerClientEvent('choosepos:hudUpdate', pid, {
+                    map     = nil,
+                    players = hudData,
+                })
+            end
+        end
 
         local winner         = "camp"
         local maxVotes       = 0
@@ -463,6 +489,9 @@ AddEventHandler('choosepos:confirmTenues', function(labelInt, labelExt)
         end
 
         CurrentMap = winner
+
+        -- Met à jour le nom de la map sur le HUD pour tout le monde
+        TriggerClientEvent('choosepos:hudSetMap', -1, Labels[winner])
 
         local dest = Destinations[winner]
 
@@ -583,6 +612,9 @@ AddEventHandler('choosepos:refuseVote', function()
 
     RefusedPlayers[src] = true
 
+    -- Cache le HUD pour ce joueur puisqu'il ne participe pas
+    TriggerClientEvent('choosepos:hudHide', src)
+
     local xPlayer = ESX.GetPlayerFromId(src)
     local pName   = xPlayer and xPlayer.getName() or ("ID " .. src)
 
@@ -621,8 +653,12 @@ AddEventHandler('choosepos:joueurMort', function()
 
     MortsEquipe[slot][src] = true
 
-    -- Notifie tous les clients pour mettre à jour le point mort du HUD
-    TriggerClientEvent('choosepos:hudPlayerDead', -1, src, slot)
+    -- Notifie les clients participants pour mettre à jour le point mort du HUD
+    for pid, _ in pairs(TeamAssignments) do
+        if not RefusedPlayers[pid] then
+            TriggerClientEvent('choosepos:hudPlayerDead', pid, src, slot)
+        end
+    end
 
 
     local totalEquipe = 0
@@ -657,17 +693,28 @@ AddEventHandler('choosepos:joueurMort', function()
         )
 
         MortsEquipe = { interieur = {}, exterieur = {} }
-        TriggerClientEvent('choosepos:hudResetDead', -1)
+        for pid, _ in pairs(TeamAssignments) do
+            if not RefusedPlayers[pid] then
+                TriggerClientEvent('choosepos:hudResetDead', pid)
+            end
+        end
 
         -- ══════════════════════════════════════════════════
-        --  INVERSION AUTOMATIQUE
+        --  CHOOSEPOSINVERSE AUTOMATIQUE — 1 seule fois par manche
         -- ══════════════════════════════════════════════════
         if VoteActive then return end
+        if AutoInverseDone then
+            -- 2e manche terminée → fin de partie, on cache le HUD pour tout le monde
+            TriggerClientEvent('choosepos:hudHide', -1)
+            return
+        end
+        AutoInverseDone = true               -- verrouille immédiatement
+
+        ExecuteCommand("reviveall 9999999")
 
         local dest = Destinations[CurrentMap]
         if not dest then return end
 
-        -- Inverser les équipes
         for pid, s in pairs(TeamAssignments) do
             TeamAssignments[pid] = (s == "interieur") and "exterieur" or "interieur"
         end
@@ -678,7 +725,7 @@ AddEventHandler('choosepos:joueurMort', function()
         for _, pid in ipairs(GetPlayers()) do
             local s = tonumber(pid)
             if not RefusedPlayers[s] then
-                local newSlot    = TeamAssignments[s]
+                local newSlot = TeamAssignments[s]
                 if not newSlot then
                     newSlot = "interieur"
                     TeamAssignments[s] = newSlot
@@ -699,6 +746,14 @@ AddEventHandler('choosepos:joueurMort', function()
             end
         end
 
+        BroadcastHudUpdate()
+        -- Sync HUD pour tout le monde (pas seulement les participants)
+        local hudDataInv = { interieur = {}, exterieur = {} }
+        for pid, s in pairs(TeamAssignments) do
+            local px   = ESX.GetPlayerFromId(pid)
+            local name = px and px.getName() or ("ID " .. pid)
+            table.insert(hudDataInv[s], { id = pid, name = name })
+        end
         BroadcastHudUpdate()
         TriggerClientEvent('esx:showNotification', -1, "~y~[AUTO-INVERSE]~w~ Les équipes ont été inversées automatiquement !")
 

@@ -4,7 +4,7 @@ local UI_OPEN   = false
 local TirBloque = false
 
 local ProtectedZones = {
-    { label = "Lobby",   coords = vector3(-429.0129, 1110.8551, 327.6910), radius = 500.0 },
+    --{ label = "Lobby",   coords = vector3(-429.0129, 1110.8551, 327.6910), radius = 500.0 },
 }
 
 local function isInProtectedZone()
@@ -723,10 +723,20 @@ end, false)
 RegisterNetEvent('choosepos:hudUpdate')
 AddEventHandler('choosepos:hudUpdate', function(data)
     SendNUIMessage({
-        action   = "showHud",
-        map      = data.map,
-        players  = data.players,
+        action  = "showHud",
+        map     = data.map,
+        players = data.players,
     })
+end)
+
+RegisterNetEvent('choosepos:hudSetMap')
+AddEventHandler('choosepos:hudSetMap', function(mapName)
+    SendNUIMessage({ action = "hudSetMap", map = mapName })
+end)
+
+RegisterNetEvent('choosepos:hudHide')
+AddEventHandler('choosepos:hudHide', function()
+    SendNUIMessage({ action = "hideHud" })
 end)
 
 RegisterNetEvent('choosepos:hudPlayerDead')
