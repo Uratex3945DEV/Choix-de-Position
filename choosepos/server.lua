@@ -135,33 +135,34 @@ local MortsEquipe = { interieur = {}, exterieur = {} }
 AddEventHandler('onResourceStart', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
 
-    MySQL.Async.fetchAll([[
+    MySQL.Async.execute([[
         CREATE TABLE IF NOT EXISTS `choosepos_positions` (
-            `map_key`  VARCHAR(64)  NOT NULL,
-            `slot`     VARCHAR(16)  NOT NULL,
-            `x`        FLOAT        NOT NULL,
-            `y`        FLOAT        NOT NULL,
-            `z`        FLOAT        NOT NULL,
-            `w`        FLOAT        NOT NULL DEFAULT 0.0,
-            `updated_at` TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            `map_key`    VARCHAR(64) NOT NULL,
+            `slot`       VARCHAR(16) NOT NULL,
+            `x`          FLOAT       NOT NULL,
+            `y`          FLOAT       NOT NULL,
+            `z`          FLOAT       NOT NULL,
+            `w`          FLOAT       NOT NULL DEFAULT 0.0,
+            `updated_at` TIMESTAMP   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`map_key`, `slot`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    ]], {}, function() end)
-
-    MySQL.Async.fetchAll('SELECT map_key, slot, x, y, z, w FROM choosepos_positions', {}, function(rows)
-        if not rows then return end
-        local count = 0
-        for _, row in ipairs(rows) do
-            local k = row.map_key
-            local s = row.slot
-            if Destinations[k] and (s == 'interieur' or s == 'exterieur') then
-                Destinations[k][s] = { x = row.x, y = row.y, z = row.z, w = row.w }
-                count = count + 1
+    ]], {}, function()
+        -- SELECT uniquement APRÈS que la table existe
+        MySQL.Async.fetchAll('SELECT map_key, slot, x, y, z, w FROM `choosepos_positions`', {}, function(rows)
+            if not rows then return end
+            local count = 0
+            for _, row in ipairs(rows) do
+                local k = row.map_key
+                local s = row.slot
+                if Destinations[k] and (s == 'interieur' or s == 'exterieur') then
+                    Destinations[k][s] = { x = row.x, y = row.y, z = row.z, w = row.w }
+                    count = count + 1
+                end
             end
-        end
-        if count > 0 then
-            print(('[choosepos] %d position(s) chargée(s) depuis MySQL.'):format(count))
-        end
+            if count > 0 then
+                print(('[choosepos] %d position(s) chargée(s) depuis MySQL.'):format(count))
+            end
+        end)
     end)
 end)
 
@@ -219,12 +220,17 @@ local function BroadcastHudUpdate()
         table.insert(data[slot], { id = pid, name = name })
     end
 
-    TriggerClientEvent('choosepos:hudUpdate', -1, {
-        map      = CurrentMap and Labels[CurrentMap] or nil,
-        tenueInt = TenueInterieur,
-        tenueExt = TenueExterieur,
-        players  = data,
-    })
+    local payload = {
+        map     = CurrentMap and Labels[CurrentMap] or nil,
+        players = data,
+    }
+
+    -- Envoie uniquement aux joueurs qui participent (non refusés)
+    for pid, _ in pairs(TeamAssignments) do
+        if not RefusedPlayers[pid] then
+            TriggerClientEvent('choosepos:hudUpdate', pid, payload)
+        end
+    end
 end
 
 RegisterCommand('choosepos', function(source)
@@ -616,7 +622,7 @@ AddEventHandler('choosepos:joueurMort', function()
     MortsEquipe[slot][src] = true
 
     -- Notifie tous les clients pour mettre à jour le point mort du HUD
-    TriggerClientEvent('choosepos:hudPlayerDead', -1, src)
+    TriggerClientEvent('choosepos:hudPlayerDead', -1, src, slot)
 
 
     local totalEquipe = 0
@@ -829,6 +835,31 @@ AddEventHandler('choosepos:adminSetTenue', function(slot, tenueLabel)
 
     TriggerClientEvent('esx:showNotification', src,
         "~g~Tenue ~y~" .. slot .. " ~g~→ ~w~" .. tenueLabel)
+end)
+
+-- /huddebug — réservé au staff
+RegisterNetEvent('choosepos:requestHudDebug')
+AddEventHandler('choosepos:requestHudDebug', function()
+    local src     = source
+    local xPlayer = ESX.GetPlayerFromId(src)
+    if not xPlayer then return end
+
+    if not AllowedGroups[xPlayer.getGroup()] then
+        TriggerClientEvent('esx:showNotification', src, "~r~Permission refusée.")
+        return
+    end
+
+    local data = { interieur = {}, exterieur = {} }
+    for pid, slot in pairs(TeamAssignments) do
+        local px   = ESX.GetPlayerFromId(pid)
+        local name = px and px.getName() or ("ID " .. pid)
+        table.insert(data[slot], { id = pid, name = name })
+    end
+
+    TriggerClientEvent('choosepos:hudDebugOpen', src, {
+        map     = CurrentMap and Labels[CurrentMap] or "Aucune partie",
+        players = data,
+    })
 end)
 
 -- Réinitialise manuellement les morts d'une équipe (util si bug)

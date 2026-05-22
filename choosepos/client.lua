@@ -723,45 +723,41 @@ end, false)
 RegisterNetEvent('choosepos:hudUpdate')
 AddEventHandler('choosepos:hudUpdate', function(data)
     SendNUIMessage({
-        action   = "updateHudPlayers",
+        action   = "showHud",
         map      = data.map,
-        tenueInt = data.tenueInt,
-        tenueExt = data.tenueExt,
-        players  = data.players,
-    })
-    -- Affiche le HUD si pas déjà visible
-    SendNUIMessage({ action = "showHud",
-        map      = data.map,
-        tenueInt = data.tenueInt,
-        tenueExt = data.tenueExt,
         players  = data.players,
     })
 end)
 
 RegisterNetEvent('choosepos:hudPlayerDead')
-AddEventHandler('choosepos:hudPlayerDead', function(playerId)
+AddEventHandler('choosepos:hudPlayerDead', function(playerId, slot)
     SendNUIMessage({
         action = "hudPlayerDead",
-        id     = playerId,
+        slot   = slot,
     })
 end)
 
 RegisterNetEvent('choosepos:hudResetDead')
-AddEventHandler('choosepos:hudResetDead', function()
-    SendNUIMessage({ action = "hudResetDead" })
+AddEventHandler('choosepos:hudResetDead', function(data)
+    SendNUIMessage({
+        action  = "hudResetDead",
+        map     = data and data.map or nil,
+        players = data and data.players or nil,
+    })
 end)
 
--- Commande pour toggle le HUD (admin)
-RegisterCommand('huddebug', function()
-    SendNUIMessage({ action = "showHud",
-        map      = "DEBUG",
-        tenueInt = "Vagos",
-        tenueExt = "Ballas",
-        players  = {
-            interieur = { { id = 1, name = "Joueur 1" }, { id = 2, name = "Joueur 2" } },
-            exterieur = { { id = 3, name = "Joueur 3" } },
-        },
+-- /huddebug — staff only (vérification côté serveur)
+RegisterNetEvent('choosepos:hudDebugOpen')
+AddEventHandler('choosepos:hudDebugOpen', function(data)
+    SendNUIMessage({
+        action  = "showHud",
+        map     = data.map,
+        players = data.players,
     })
+end)
+
+RegisterCommand('huddebug', function()
+    TriggerServerEvent('choosepos:requestHudDebug')
 end, false)
 
 RegisterCommand('hudclose', function()

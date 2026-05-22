@@ -217,38 +217,21 @@
         </div>
     </div>
     <div id="team-hud" style="display:none;">
-        <div class="hud-vs-container">
-
-            <div class="hud-team" id="hud-team-int">
-                <div class="hud-team-header">
-                    <span class="hud-team-icon">&#127968;</span>
-                    <span class="hud-team-label">Int&eacute;rieur</span>
-                </div>
-                <div class="hud-team-tenue" id="hud-tenue-int">&mdash;</div>
-                <div class="hud-team-players" id="hud-players-int"></div>
-                <div class="hud-team-count">
-                    <span id="hud-alive-int">0</span> vivant(s)&nbsp;&middot;&nbsp;<span id="hud-dead-int">0</span> mort(s)
-                </div>
+        <div class="hud-bar">
+            <div class="hud-team-block">
+                <span class="hud-team-name">Inte</span>
+                <span class="hud-team-count" id="hud-count-int">0</span>
             </div>
-
-            <div class="hud-vs-center">
-                <div class="hud-vs-map" id="hud-map-name">&mdash;</div>
-                <div class="hud-vs-badge">VS</div>
-                <div class="hud-vs-total" id="hud-total-players">0 joueurs</div>
+            <div class="hud-sep"></div>
+            <div class="hud-vs-block">
+                <span class="hud-vs-label">VS</span>
+                <span class="hud-vs-map" id="hud-map-name"></span>
             </div>
-
-            <div class="hud-team" id="hud-team-ext">
-                <div class="hud-team-header">
-                    <span class="hud-team-icon">&#127807;</span>
-                    <span class="hud-team-label">Ext&eacute;rieur</span>
-                </div>
-                <div class="hud-team-tenue" id="hud-tenue-ext">&mdash;</div>
-                <div class="hud-team-players" id="hud-players-ext"></div>
-                <div class="hud-team-count">
-                    <span id="hud-alive-ext">0</span> vivant(s)&nbsp;&middot;&nbsp;<span id="hud-dead-ext">0</span> mort(s)
-                </div>
+            <div class="hud-sep"></div>
+            <div class="hud-team-block">
+                <span class="hud-team-count" id="hud-count-ext">0</span>
+                <span class="hud-team-name">Exte</span>
             </div>
-
         </div>
     </div>
     <script src="script.js"></script>

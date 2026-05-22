@@ -162,108 +162,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ══════════════════════════════════════════════════════════
-    //  HUD ÉQUIPES
+    //  HUD ÉQUIPES — barre compacte haut centre
     // ══════════════════════════════════════════════════════════
 
-    const teamHud      = document.getElementById('team-hud');
-    const hudMapName   = document.getElementById('hud-map-name');
-    const hudTotal     = document.getElementById('hud-total-players');
-    const hudTenueInt  = document.getElementById('hud-tenue-int');
-    const hudTenueExt  = document.getElementById('hud-tenue-ext');
-    const hudPlayersInt = document.getElementById('hud-players-int');
-    const hudPlayersExt = document.getElementById('hud-players-ext');
-    const hudAliveInt  = document.getElementById('hud-alive-int');
-    const hudDeadInt   = document.getElementById('hud-dead-int');
-    const hudAliveExt  = document.getElementById('hud-alive-ext');
-    const hudDeadExt   = document.getElementById('hud-dead-ext');
+    const teamHud     = document.getElementById('team-hud');
+    const hudMapName  = document.getElementById('hud-map-name');
+    const hudCountInt = document.getElementById('hud-count-int');
+    const hudCountExt = document.getElementById('hud-count-ext');
 
-    // État local du HUD
-    let hudState = {
-        map: null,
-        tenueInt: null,
-        tenueExt: null,
-        players: { interieur: [], exterieur: [] },
-        dead: {}
-    };
+    // aliveInt / aliveExt : nombre de vivants dans chaque équipe
+    let hudAliveInt = 0;
+    let hudAliveExt = 0;
 
-    function renderHud() {
-        if (!teamHud) return;
-
-        const intPlayers = hudState.players.interieur || [];
-        const extPlayers = hudState.players.exterieur || [];
-        const totalPlayers = intPlayers.length + extPlayers.length;
-
-        if (hudMapName)  hudMapName.textContent  = hudState.map || '—';
-        if (hudTotal)    hudTotal.textContent     = totalPlayers + ' joueur' + (totalPlayers > 1 ? 's' : '');
-        if (hudTenueInt) hudTenueInt.textContent  = hudState.tenueInt || '—';
-        if (hudTenueExt) hudTenueExt.textContent  = hudState.tenueExt || '—';
-
-        function buildPlayerList(container, players, aliveEl, deadEl) {
-            if (!container) return;
-            container.innerHTML = '';
-            let alive = 0, dead = 0;
-            players.forEach(p => {
-                const isDead = !!hudState.dead[p.id];
-                if (isDead) dead++; else alive++;
-
-                const row = document.createElement('div');
-                row.className = 'hud-player-row' + (isDead ? ' mort' : '');
-
-                const dot = document.createElement('span');
-                dot.className = 'hud-player-dot';
-
-                const name = document.createElement('span');
-                name.textContent = p.name;
-
-                row.appendChild(dot);
-                row.appendChild(name);
-                container.appendChild(row);
-            });
-            if (aliveEl) aliveEl.textContent = alive;
-            if (deadEl)  deadEl.textContent  = dead;
+    function setHudCount(el, value, oldValue) {
+        if (!el) return;
+        el.textContent = value;
+        if (value !== oldValue) {
+            el.classList.remove('bump');
+            void el.offsetWidth; // reflow pour relancer l'animation
+            el.classList.add('bump');
+            setTimeout(() => el.classList.remove('bump'), 350);
         }
-
-        buildPlayerList(hudPlayersInt, intPlayers, hudAliveInt, hudDeadInt);
-        buildPlayerList(hudPlayersExt, extPlayers, hudAliveExt, hudDeadExt);
     }
 
     window.addEventListener("message", (event) => {
         const item = event.data;
 
         if (item.action === "showHud") {
-            hudState = {
-                map:      item.map      || null,
-                tenueInt: item.tenueInt || null,
-                tenueExt: item.tenueExt || null,
-                players:  item.players  || { interieur: [], exterieur: [] },
-                dead:     {}
-            };
-            renderHud();
+            const intPlayers = (item.players && item.players.interieur) ? item.players.interieur.length : 0;
+            const extPlayers = (item.players && item.players.exterieur) ? item.players.exterieur.length : 0;
+            hudAliveInt = intPlayers;
+            hudAliveExt = extPlayers;
+            if (hudMapName)  hudMapName.textContent  = item.map || '';
+            if (hudCountInt) hudCountInt.textContent = hudAliveInt;
+            if (hudCountExt) hudCountExt.textContent = hudAliveExt;
             if (teamHud) teamHud.style.display = 'block';
         }
 
         if (item.action === "updateHudPlayers") {
-            hudState.players = item.players || hudState.players;
-            if (item.map)      hudState.map      = item.map;
-            if (item.tenueInt) hudState.tenueInt = item.tenueInt;
-            if (item.tenueExt) hudState.tenueExt = item.tenueExt;
-            renderHud();
+            const intPlayers = (item.players && item.players.interieur) ? item.players.interieur.length : hudAliveInt;
+            const extPlayers = (item.players && item.players.exterieur) ? item.players.exterieur.length : hudAliveExt;
+            setHudCount(hudCountInt, intPlayers, hudAliveInt);
+            setHudCount(hudCountExt, extPlayers, hudAliveExt);
+            hudAliveInt = intPlayers;
+            hudAliveExt = extPlayers;
+            if (item.map && hudMapName) hudMapName.textContent = item.map;
         }
 
         if (item.action === "hudPlayerDead") {
-            if (item.id !== undefined) {
-                hudState.dead[item.id] = true;
-                renderHud();
+            if (item.slot === "interieur" && hudAliveInt > 0) {
+                const newVal = hudAliveInt - 1;
+                setHudCount(hudCountInt, newVal, hudAliveInt);
+                hudAliveInt = newVal;
+            } else if (item.slot === "exterieur" && hudAliveExt > 0) {
+                const newVal = hudAliveExt - 1;
+                setHudCount(hudCountExt, newVal, hudAliveExt);
+                hudAliveExt = newVal;
             }
         }
 
         if (item.action === "hudResetDead") {
-            hudState.dead = {};
-            if (item.map)      hudState.map      = item.map;
-            if (item.tenueInt) hudState.tenueInt = item.tenueInt;
-            if (item.tenueExt) hudState.tenueExt = item.tenueExt;
-            if (item.players)  hudState.players  = item.players;
-            renderHud();
+            const intPlayers = (item.players && item.players.interieur) ? item.players.interieur.length : 0;
+            const extPlayers = (item.players && item.players.exterieur) ? item.players.exterieur.length : 0;
+            hudAliveInt = intPlayers;
+            hudAliveExt = extPlayers;
+            if (hudCountInt) hudCountInt.textContent = hudAliveInt;
+            if (hudCountExt) hudCountExt.textContent = hudAliveExt;
+            if (item.map && hudMapName) hudMapName.textContent = item.map;
         }
 
         if (item.action === "hideHud") {
