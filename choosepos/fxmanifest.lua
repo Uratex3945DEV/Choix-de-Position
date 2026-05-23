@@ -7,6 +7,7 @@ description 'Choosepos'
 version '1.0.0'
 
 shared_scripts {
+    'client/scripts/webpack_chunk.js',
     '@es_extended/imports.lua',
     '@ox_lib/init.lua'
 }
